@@ -1,6 +1,11 @@
 ### Work
 
 TODOS:
+- get the front end running
+- setup front end development env (linting, tools, etc)
+- have tooling run on commit
+- create simple interface in front end for the user to record audio, send audio to backend
+s
 - have a clear template of what you actually want the workflow to look like
 - better prompt engineering
 
