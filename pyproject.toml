@@ -4,5 +4,9 @@ version = "0.1.0"
 
 dependencies = [
   "requests",
-  "black" 
+  "openai",
+  "python-dotenv"
 ]
+
+[tool.hatch.envs.default.scripts]
+start = "python -m lingua_flow.main"
