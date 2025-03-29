@@ -1,6 +1,9 @@
 ### Work
 
 TODOS:
+- get the existing logic working as a FastAPI app running with a single endpoint 
+- get the front end running
+
 - have a clear template of what you actually want the workflow to look like
 - better prompt engineering
 

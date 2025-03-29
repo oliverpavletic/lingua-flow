@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 # Auto-load .env file when this module is imported
