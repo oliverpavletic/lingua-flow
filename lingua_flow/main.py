@@ -6,8 +6,8 @@ _AUDIO_FILE = "/Users/oliverpavletic/Desktop/short_spanish_audio_demo.m4a"
 
 def main():
     deepgram_response = deepgram.convert_audio_to_text(_AUDIO_FILE)
-    deepgram_response = "hola me llamo oliver y quiero aprender espa\u00f1ol muchas gracias chao"
-    
+    # deepgram_response = "hola me llamo oliver y quiero aprender espa\u00f1ol muchas gracias chao"
+
     query_str = f"""
     por favor, enumere los errores del siguiente texto en español (escrito por un extranjero), 
     ignorando la puntuación (por ejemplo, comas, acentos, tildes, mayúsculas y cosas similares) y teniendo en cuenta la redacción informal. 
