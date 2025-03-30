@@ -1,13 +1,17 @@
 ### Work
 
 TODOS:
-- get the front end running
-- setup front end development env (linting, tools, etc)
+- improve front end interface
+- better prompt engineering to actually give useful feedback to user (use the web tool to iterate quickly)
+- frontend show linting errors in vscode
 - have tooling run on commit
-- create simple interface in front end for the user to record audio, send audio to backend
-s
 - have a clear template of what you actually want the workflow to look like
 - better prompt engineering
+
+frontend wishlist
+- wipe text when you hit record again
+- nicer "feedback" section, instead of just plain text
+- show record volume and duration, cap recording at 30 seconds or something
 
 MVP:
 - present user with a prompt
