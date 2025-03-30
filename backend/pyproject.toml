@@ -9,6 +9,7 @@ dependencies = [
   "types-requests",
   "openai",
   "python-dotenv",
+  "python-multipart",
   "black",
   "isort",
   "flake8",

@@ -1,35 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useRef } from "react";
+import { Mic, StopCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import RecordRTC from "recordrtc";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [isRecording, setIsRecording] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const recorderRef = useRef(null);
+
+  const startRecording = () => {
+    setIsRecording(true);
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+      const recorder = new RecordRTC(stream, { type: "audio" });
+      recorder.startRecording();
+      recorderRef.current = recorder;
+    });
+  };
+
+  const stopRecording = async () => {
+    setIsRecording(false);
+    // # TODO check recorderRef is not null?
+    recorderRef.current.stopRecording(async () => {
+      const blob = recorderRef.current.getBlob();
+      const formData = new FormData();
+      formData.append("file", blob, "audio.wav");
+
+      try {
+        const response = await fetch("http://localhost:8000/audio-to-text", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await response.json();
+        console.log(data)
+        setFeedback(data.feedback); // Assuming the backend returns { "feedback": "Your response was great!" }
+      } catch (error) {
+        console.error("Error:", error);
+        setFeedback("Error processing audio.");
+      }
+    });
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <div className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-md text-center">
+        <h1 className="text-xl font-semibold mb-4">How was your day?</h1>
+        <Button onClick={isRecording ? stopRecording : startRecording} className="mt-4 flex items-center gap-2">
+          {isRecording ? <StopCircle className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+          {isRecording ? "Stop Recording" : "Start Recording"}
+        </Button>
+        {feedback && <p className="mt-4 text-green-600">{feedback}</p>}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
-
-export default App

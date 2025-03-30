@@ -15,7 +15,7 @@ def _extract_transcript(response_json: Dict[Any, Any]) -> str:
         )
 
 
-def convert_audio_to_text(audio_file: str) -> str:
+def convert_audio_to_text(audio: bytes) -> str:
     headers = {
         "Authorization": f"Token {DEEPGRAM_API_KEY}",
         "Content-Type": "audio/m4a",
@@ -29,12 +29,11 @@ def convert_audio_to_text(audio_file: str) -> str:
         "diarize": "false",
     }
 
-    with open(audio_file, "rb") as audio:
-        response = requests.post(
-            "https://api.deepgram.com/v1/listen",
-            headers=headers,
-            params=params,
-            data=audio,
-        )
+    response = requests.post(
+        "https://api.deepgram.com/v1/listen",
+        headers=headers,
+        params=params,
+        data=audio,
+    )
 
     return _extract_transcript(response.json())

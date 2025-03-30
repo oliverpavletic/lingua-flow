@@ -1,20 +1,18 @@
 import requests
 
-# Endpoint URL
-url = "http://127.0.0.1:8000/audio-to-text"
+_FILENAME = "/Users/oliverpavletic/Desktop/short_spanish_audio_demo.m4a"
 
-# Make the POST request to the FastAPI endpoint with the JSON payload
-response = requests.get(url)
+with open(_FILENAME, "rb") as f:
+    response = requests.post("http://localhost:8000/audio-to-text", files={"file": f})
 
-# Print the response from the server
 if response.status_code == 200:
     print(
         "Response:", response.text
-    )  # Print the response from the FastAPI app (likely the text result)
+    ) 
 else:
     print(
-        "Failed to get text. "
         f"Status code: {response.status_code}, Response: {response.text}"
     )
 
-# Run with hatch run python -m util.requester
+# USAGE:
+# hatch run python -m util.requester
