@@ -3,14 +3,13 @@
 TODOS:
 - improve front end interface
 - better prompt engineering to actually give useful feedback to user (use the web tool to iterate quickly)
-- frontend show linting errors in vscode
 - have tooling run on commit
 - have a clear template of what you actually want the workflow to look like
 - better prompt engineering
 
 frontend wishlist
-- wipe text when you hit record again
-- nicer "feedback" section, instead of just plain text
+- show the user what they said (their transcript) (replace the button with the text)
+- more than one message
 - show record volume and duration, cap recording at 30 seconds or something
 
 MVP:
