@@ -1,11 +1,10 @@
 ### Work
 
 TODOS:
-- improve front end interface
+- refactor front end messy code
 - better prompt engineering to actually give useful feedback to user (use the web tool to iterate quickly)
 - have tooling run on commit
 - have a clear template of what you actually want the workflow to look like
-- better prompt engineering
 
 frontend wishlist
 - show the user what they said (their transcript) (replace the button with the text)

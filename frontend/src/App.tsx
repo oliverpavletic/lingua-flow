@@ -2,75 +2,49 @@ import { useState, useRef, useEffect } from "react";
 import { Mic, StopCircle, User, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RecordRTC from "recordrtc";
+import { useAudioAnalyzer } from "./lib/useAudioAnalyzer";
 
 interface AudioFeedback {
+  transcript: string;
   feedback: string;
+}
+
+interface Message {
+  type: 'user' | 'ai';
+  content: string;
 }
 
 export default function App() {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [feedback, setFeedback] = useState("");
-  const [audioLevel, setAudioLevel] = useState<number[]>([0, 0, 0, 0, 0, 0, 0, 0]);
+  const [transcript, setTranscript] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
   const recorderRef = useRef<RecordRTC | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const animationRef = useRef<number | null>(null);
   const responseRef = useRef<HTMLDivElement>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Setup audio analyzer when recording starts
+  const audioLevel = useAudioAnalyzer(isRecording, streamRef.current); // Use the custom hook for audio levels
+
+  // Scroll to bottom when new messages are added
   useEffect(() => {
-    if (isRecording && streamRef.current) {
-      const audioContext = new AudioContext();
-      const source = audioContext.createMediaStreamSource(streamRef.current);
-      const analyser = audioContext.createAnalyser();
-      analyser.fftSize = 256;
-      source.connect(analyser);
-      analyserRef.current = analyser;
-
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-      const updateWaveform = () => {
-        analyser.getByteFrequencyData(dataArray);
-
-        // Take a subset of frequencies and normalize them for visualization
-        const levels = Array.from(dataArray.slice(0, 8)).map(val => val / 255);
-
-        // Add some minimal level to make the waveform visible even in silence
-        const minLevel = 0.05;
-        const normalizedLevels = levels.map(level => Math.max(level, minLevel));
-
-        setAudioLevel(normalizedLevels);
-        animationRef.current = requestAnimationFrame(updateWaveform);
-      };
-
-      updateWaveform();
-    } else {
-      // Clean up animation when recording stops
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
+  }, [messages]);
 
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
-    };
-  }, [isRecording]);
-
-  // Scroll to response when feedback is received
-  useEffect(() => {
-    if (feedback && responseRef.current) {
-      responseRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [feedback]);
+  // // Scroll to response when feedback is received
+  // useEffect(() => {
+  //   if (feedback && responseRef.current) {
+  //     responseRef.current.scrollIntoView({ behavior: 'smooth' });
+  //   }
+  // }, [feedback]);
 
   const startRecording = () => {
     setIsRecording(true);
     setFeedback(""); // Clear previous feedback
+    setTranscript(""); // Clear previous transcript
 
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream: MediaStream) => {
       streamRef.current = stream;
@@ -104,7 +78,19 @@ export default function App() {
         .then((response) => response.json())
         .then((data: AudioFeedback) => {
           console.log(data);
-          setFeedback(data.feedback);
+          setTranscript(data.transcript);
+
+          // Add user message to chat history
+          if (data.transcript) {
+            setMessages(prev => [...prev, { type: 'user', content: data.transcript }]);
+          }
+
+          // Add AI response to chat history
+          if (data.feedback) {
+            setFeedback(data.feedback);
+            setMessages(prev => [...prev, { type: 'ai', content: data.feedback }]);
+          }
+
           setIsProcessing(false);
         })
         .catch((error) => {
@@ -115,24 +101,6 @@ export default function App() {
     });
   };
 
-  // For debugging visualization
-  useEffect(() => {
-    if (isRecording && !analyserRef.current) {
-      console.log("Debug: Audio analyzer not initialized");
-      // Create mock animation for testing visualization
-      let i = 0;
-      const mockAnimation = () => {
-        i += 0.1;
-        const mockLevels = Array(8).fill(0).map((_, idx) =>
-          Math.abs(Math.sin(i + idx * 0.4)) * 0.7 + 0.1
-        );
-        setAudioLevel(mockLevels);
-        animationRef.current = requestAnimationFrame(mockAnimation);
-      };
-      mockAnimation();
-    }
-  }, [isRecording]);
-
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       {/* Header */}
@@ -142,6 +110,33 @@ export default function App() {
 
       {/* Chat-like messages container */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
+        {/* Message history */}
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            className={`flex flex-col ${message.type === 'user' ? 'items-end' : 'items-start'}`}
+          >
+            <div className="flex items-start gap-3 max-w-3xl">
+              {message.type === 'ai' && (
+                <div className="bg-purple-500 h-8 w-8 rounded-full flex items-center justify-center text-white">
+                  <Bot className="w-5 h-5" />
+                </div>
+              )}
+              <div
+                className={`rounded-lg p-4 shadow-sm ${message.type === 'user' ? 'bg-blue-100' : 'bg-white'
+                  }`}
+              >
+                <p>{message.content}</p>
+              </div>
+              {message.type === 'user' && (
+                <div className="bg-blue-500 h-8 w-8 rounded-full flex items-center justify-center text-white">
+                  <User className="w-5 h-5" />
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
         {/* User section (recording) */}
         <div className="flex flex-col items-end">
           <div className="flex items-start gap-3 max-w-3xl">
@@ -193,6 +188,9 @@ export default function App() {
                       </div>
                     </div>
                   )}
+                  {transcript !== "" && !messages.some(m => m.type === 'user' && m.content === transcript) && (
+                    <p>{transcript}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -202,23 +200,22 @@ export default function App() {
           </div>
         </div>
 
-        {/* Response section */}
-        {(feedback || isProcessing) && (
+        {/* Response section for current processing */}
+        {(feedback && !messages.some(m => m.type === 'ai' && m.content === feedback)) && (
           <div className="flex flex-col items-start" ref={responseRef}>
             <div className="flex items-start gap-3 max-w-3xl">
               <div className="bg-purple-500 h-8 w-8 rounded-full flex items-center justify-center text-white">
                 <Bot className="w-5 h-5" />
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
-                {feedback ? (
-                  <p>{feedback}</p>
-                ) : (
-                  <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
-                )}
+                <p>{feedback}</p>
               </div>
             </div>
           </div>
         )}
+
+        {/* Invisible div for scrolling to the end of the chat */}
+        <div ref={chatEndRef}></div>
       </div>
     </div>
   );

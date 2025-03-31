@@ -17,8 +17,9 @@ router = APIRouter()
 @router.post("/audio-to-text")
 async def audio_to_text(file: UploadFile) -> Dict[Any, Any]:
     audio = await file.read()
-    voice_transcript = convert_audio_to_text(audio)
-    logger.info(f"{voice_transcript=}")
-    prompt_text = get_gpt_spanish_feedback_prompt(voice_transcript)
-    feedback = query_gpt35(prompt_text)
-    return {"feedback": feedback}
+    transcript = convert_audio_to_text(audio)
+    prompt = get_gpt_spanish_feedback_prompt(transcript)
+    feedback = query_gpt35(prompt)
+    response = {"transcript": transcript, "feedback": feedback}
+    logger.info(response)
+    return response
