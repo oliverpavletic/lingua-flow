@@ -1,5 +1,6 @@
 import { User, Bot } from "lucide-react";
 import { Message } from "../types";
+import ReactMarkdown from "react-markdown";
 
 interface MessageBubbleProps {
     message: Message;
@@ -17,7 +18,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                     </div>
                 )}
                 <div className={`rounded-lg p-4 shadow-sm ${isUser ? 'bg-blue-100' : 'bg-white'}`}>
-                    <p>{message.content}</p>
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
                 </div>
                 {isUser && (
                     <div className="bg-blue-500 h-8 w-8 rounded-full flex items-center justify-center text-white">
