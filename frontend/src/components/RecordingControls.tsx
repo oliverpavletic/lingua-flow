@@ -1,6 +1,5 @@
 import { Mic, StopCircle, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAudioAnalyzer } from "../lib/useAudioAnalyzer";
 
 interface RecordingControlsProps {
   isRecording: boolean;
@@ -8,7 +7,6 @@ interface RecordingControlsProps {
   transcript: string;
   startRecording: () => void;
   stopRecording: () => void;
-  getStream: () => MediaStream | null;
 }
 
 export function RecordingControls({
@@ -17,11 +15,7 @@ export function RecordingControls({
   transcript,
   startRecording,
   stopRecording,
-  getStream
 }: RecordingControlsProps) {
-  // Use the custom hook for audio levels
-  const audioLevel = useAudioAnalyzer(isRecording, getStream());
-
   return (
     <div className="flex flex-col items-end">
       <div className="flex items-start gap-3 max-w-3xl">
@@ -39,15 +33,16 @@ export function RecordingControls({
                   <StopCircle className="w-5 h-5 absolute left-3" />
 
                   {/* Waveform container, centered */}
-                  <div className="flex items-center space-x-1 h-6 mx-auto">
-                    {audioLevel.map((level, index) => (
-                      <div
-                        key={index}
-                        className="w-1 bg-white opacity-80"
-                        style={{
-                          height: `${Math.max(3, level * 20)}px`,
-                        }}
-                      />
+                  <div className="flex items-center justify-center gap-1 h-12">
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <div key={i} className="flex items-end">
+                        <div
+                          className="w-1 bg-white opacity-80 rounded-full origin-bottom animate-waveform"
+                          style={{
+                            animationDelay: `${i * 0.1}s`,
+                          }}
+                        />
+                      </div>
                     ))}
                   </div>
                 </>

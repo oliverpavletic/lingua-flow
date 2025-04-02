@@ -10,8 +10,6 @@ export function useAudioRecorder() {
     const recorderRef = useRef<RecordRTC | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
 
-    const getStream = () => streamRef.current;
-
     const startRecording = () => {
         setIsRecording(true);
         setFeedback("");
@@ -67,6 +65,5 @@ export function useAudioRecorder() {
         feedback,
         startRecording,
         stopRecording,
-        getStream
     };
 }

@@ -16,7 +16,6 @@ export default function App() {
     feedback,
     startRecording,
     stopRecording,
-    getStream
   } = useAudioRecorder();
 
   // Track when we've processed the current transcript/feedback
@@ -70,7 +69,6 @@ export default function App() {
           transcript={displayedTranscript}
           startRecording={startRecording}
           stopRecording={stopRecording}
-          getStream={getStream}
         />
 
         <div ref={chatEndRef}></div>
