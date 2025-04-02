@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 
-def query_gpt35(input: str) -> str:
+def query_gpt(model: str, input: str, instructions: str) -> str:
     client = OpenAI()
-    response = client.responses.create(model="gpt-3.5-turbo", input=input)
+    response = client.responses.create(model=model, input=input, instructions=instructions)
     return response.output_text
