@@ -1,5 +1,7 @@
 # lingua-flow
 
+![](demo.png)
+
 ## Overview
 Chat with an AI Spanish language tutor.
 
